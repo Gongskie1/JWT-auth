@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.corsOption = void 0;
-const allowlist = ["fb.com", "http://127.0.0.1:8080", "http://localhost:8080"];
+exports.corsOption = exports.allowOriginList = void 0;
+exports.allowOriginList = ["fb.com", "http://127.0.0.1:8080", "http://localhost:8080", "http://localhost:5457"];
 exports.corsOption = {
     origin: (origin, callback) => {
         // console.log("Request Origin:", origin);
-        if (!origin || allowlist.includes(origin)) {
+        if (!origin || exports.allowOriginList.includes(origin)) {
             callback(null, true);
         }
         else {

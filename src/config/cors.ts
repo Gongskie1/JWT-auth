@@ -1,12 +1,12 @@
 import { CorsOptions } from "cors"
 
-const allowlist  = ["fb.com", "http://127.0.0.1:8080", "http://localhost:8080"]
+export const allowOriginList  = ["fb.com", "http://127.0.0.1:8080", "http://localhost:8080", "http://localhost:5457"]
 
 
 export const corsOption: CorsOptions = {
   origin: (origin: string | undefined, callback) => {
     // console.log("Request Origin:", origin);
-    if (!origin || allowlist.includes(origin)) {
+    if (!origin || allowOriginList.includes(origin)) {
       callback(null, true);
     } else {
     //   console.log("Blocked by CORS:", origin);

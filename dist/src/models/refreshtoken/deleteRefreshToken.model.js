@@ -8,20 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const find_one_user_service_1 = require("../../services/user/find-one-user.service");
-const findOneUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.params;
-    try {
-        const user = yield (0, find_one_user_service_1.findOneUserService)(email);
-        res.status(200).json({
-            success: true,
-            message: "User found successfully",
-            user,
+exports.deleteRefreshToken = deleteRefreshToken;
+const prisma_1 = __importDefault(require("../../config/prisma"));
+function deleteRefreshToken(refreshToken) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield prisma_1.default.refreshToken.delete({
+            where: { token: refreshToken }
         });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.default = findOneUserController;
+    });
+}

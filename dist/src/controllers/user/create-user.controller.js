@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const create_user_service_1 = require("../../services/user/create-user.service");
-const createUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body;
     try {
         const newUser = yield (0, create_user_service_1.createUserService)(user);
@@ -19,17 +19,9 @@ const createUserController = (req, res) => __awaiter(void 0, void 0, void 0, fun
             message: "User created successfully",
             user: newUser,
         });
-        return;
     }
     catch (error) {
-        console.error("Error in createUserController:", error);
-        const message = error instanceof Error ? error.message : "An unknown error occurred";
-        const statusCode = message === "This email is already taken." ? 409 : 500;
-        res.status(statusCode).json({
-            success: false,
-            message,
-        });
-        return;
+        next(error);
     }
 });
 exports.default = createUserController;

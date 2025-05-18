@@ -13,18 +13,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Roles {
+  ADMIN
+  ADMINSUPPORT
+  DRIVER
+  RIDER
+}
+
 model Users {
   id           Int            @id @default(autoincrement())
   name         String         @db.VarChar(255)
   email        String         @unique @db.VarChar(255)
   password     String         @db.VarChar(255)
+  roles        Roles
   createdAt    DateTime       @default(now())
   RefreshToken RefreshToken[]
 }
 
 model RefreshToken {
   id        Int      @id @default(autoincrement())
-  token     String   @db.Text
+  token     String   @unique @db.Text
   userId    Int
   user      Users    @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())

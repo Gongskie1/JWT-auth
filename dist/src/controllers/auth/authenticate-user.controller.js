@@ -9,25 +9,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authController = void 0;
+exports.handleLogin = void 0;
 const auth_user_service_1 = require("../../services/auth/auth-user.service");
-const authController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const handleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body;
     try {
-        const authenticator = yield (0, auth_user_service_1.authenticateUser)(user);
-        res.status(200).json({
-            success: true,
-            message: "User verified."
+        const { accessToken, refreshToken } = yield (0, auth_user_service_1.authenticateUser)(user);
+        console.log(refreshToken);
+        res.cookie("jwt", refreshToken, {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: true,
+            maxAge: 1000 * 60 * 60 * 12,
         });
+        res.status(200).json({ accessToken });
     }
     catch (error) {
-        const message = error instanceof Error ? error.message : "An unknown error occurred";
-        const statusCode = message === "User is not verified." ? 409 : 500;
-        res.status(statusCode).json({
-            success: false,
-            message,
-        });
-        return;
+        next(error);
     }
 });
-exports.authController = authController;
+exports.handleLogin = handleLogin;

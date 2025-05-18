@@ -1,8 +1,8 @@
 // controllers/user/find-user.controller.ts
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { findOneUserService } from "../../services/user/find-one-user.service";
 
-const findOneUserController = async (req: Request, res: Response) => {
+const findOneUserController = async (req: Request, res: Response, next:NextFunction) => {
   const { email } = req.params;
 
   try {
@@ -14,16 +14,7 @@ const findOneUserController = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-
-    const message = error instanceof Error ? error.message : "An unknown error occurred";
-
-    const status = message === "User not found" ? 404 : 500;
-
-    res.status(status).json({
-      success: false,
-      message,
-      error: message,
-    });
+    next(error)
   }
 };
 

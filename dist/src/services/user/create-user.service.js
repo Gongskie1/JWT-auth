@@ -13,10 +13,11 @@ exports.createUserService = void 0;
 const create_user_model_1 = require("../../models/user/create-user.model");
 const fetchall_user_model_1 = require("../../models/user/fetchall-user.model");
 const bcrypt_1 = require("../../utils/bcrypt");
+const httpError_1 = require("../../utils/httpError"); // Import HttpError
 const createUserService = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield (0, fetchall_user_model_1.findOneUserModel)(user.email);
     if (existingUser)
-        throw new Error("This email is already taken.");
+        throw new httpError_1.HttpError(409, "This email is already taken.");
     const hashedPassword = yield (0, bcrypt_1.hashPassword)(user.password);
     const newUser = yield (0, create_user_model_1.createUserModel)(Object.assign(Object.assign({}, user), { password: hashedPassword }));
     return newUser;
