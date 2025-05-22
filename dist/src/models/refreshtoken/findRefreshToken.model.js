@@ -13,17 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findRefreshToken = findRefreshToken;
+exports.findRefreshTokenByUserId = findRefreshTokenByUserId;
 const prisma_1 = __importDefault(require("../../config/prisma"));
 function findRefreshToken(refreshToken) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield prisma_1.default.refreshToken.findFirst({
-            where: { token: refreshToken }, include: {
+            where: { hashedToken: refreshToken }, include: {
                 user: {
                     select: {
                         roles: true
                     }
                 }
             },
+        });
+    });
+}
+function findRefreshTokenByUserId(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield prisma_1.default.refreshToken.findMany({
+            where: {
+                userId: userId
+            }
         });
     });
 }

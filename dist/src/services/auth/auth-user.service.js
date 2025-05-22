@@ -18,37 +18,56 @@ const bcrypt_1 = require("../../utils/bcrypt");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const refreshtoken_model_1 = require("../../models/refreshtoken/refreshtoken.model");
 const httpError_1 = require("../../utils/httpError");
+const findRefreshToken_model_1 = require("../../models/refreshtoken/findRefreshToken.model");
+const deleteRefreshToken_model_1 = require("../../models/refreshtoken/deleteRefreshToken.model");
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
-function authenticateUser(user) {
+function authenticateUser(user, cookies, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Input validation
         if (!user.email)
-            throw new httpError_1.HttpError(400, "Please insert an email");
+            throw new httpError_1.HttpError(400, "Email is required");
         if (!user.password)
-            throw new httpError_1.HttpError(400, "Please insert a password");
+            throw new httpError_1.HttpError(400, "Password is required");
+        // Check user exists
         const foundUser = yield (0, find_one_user_service_1.findOneUserService)(user.email);
         if (!foundUser)
             throw new httpError_1.HttpError(404, "User not found");
+        // Verify password
         const isAuthenticated = yield (0, bcrypt_1.checkHashedPassword)(user.password, foundUser.password);
         if (!isAuthenticated)
-            throw new httpError_1.HttpError(401, "Invalid password or username");
-        if (!accessTokenSecret || !refreshTokenSecret)
-            throw new httpError_1.HttpError(500, "JWT secrets are not defined in environment variables");
-        const accessToken = jsonwebtoken_1.default.sign({
-            id: foundUser.id,
-            roles: foundUser.roles
-        }, accessTokenSecret, { expiresIn: "1m" });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: foundUser.id }, refreshTokenSecret, { expiresIn: "12h" });
-        yield (0, refreshtoken_model_1.refreshTokenModel)({
-            token: refreshToken,
+            throw new httpError_1.HttpError(401, "Invalid credentials");
+        // Handle refresh token reuse (if cookie exists)
+        if (cookies === null || cookies === void 0 ? void 0 : cookies.jwt) {
+            const refreshToken = cookies.jwt;
+            try {
+                const decoded = jsonwebtoken_1.default.verify(refreshToken, refreshTokenSecret);
+                const foundToken = yield (0, findRefreshToken_model_1.findRefreshToken)(refreshToken);
+                if (!foundToken) {
+                    console.log("Refresh token reuse detected");
+                    yield (0, deleteRefreshToken_model_1.deleteRefreshTokenByUserId)(decoded.id);
+                }
+            }
+            catch (error) {
+                console.log("Invalid refresh token in cookie");
+            }
+            res === null || res === void 0 ? void 0 : res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+        }
+        // // Delete all old refresh tokens for this user
+        // await deleteRefreshTokenByUserId(foundUser.id);
+        // Generate new tokens
+        const accessToken = jsonwebtoken_1.default.sign({ id: foundUser.id, roles: foundUser.roles }, accessTokenSecret, { expiresIn: "15m" } // More realistic expiry
+        );
+        const newRefreshToken = jsonwebtoken_1.default.sign({ id: foundUser.id }, refreshTokenSecret, { expiresIn: "1d" });
+        // Save new refresh token
+        yield (0, refreshtoken_model_1.CreateRefreshTokenModel)({
+            hashedToken: newRefreshToken,
             userId: foundUser.id,
-            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 12),
-            isValid: true,
+            expireAt: new Date(Date.now() + 1000 * 60 * 60 * 12),
+            revoked: false,
             createdAt: new Date(),
+            updatedAt: new Date(),
         });
-        return {
-            accessToken,
-            refreshToken,
-        };
+        return { accessToken, newRefreshToken, roles: foundUser.roles };
     });
 }

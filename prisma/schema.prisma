@@ -25,17 +25,18 @@ model Users {
   name         String         @db.VarChar(255)
   email        String         @unique @db.VarChar(255)
   password     String         @db.VarChar(255)
-  roles        Roles
+  roles        Roles          @default(RIDER)
   createdAt    DateTime       @default(now())
   RefreshToken RefreshToken[]
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique @db.Text
-  userId    Int
-  user      Users    @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-  isValid   Boolean  @default(true)
+  id          String   @id @unique @default(uuid())
+  hashedToken String   @unique
+  userId      Int
+  user        Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expireAt    DateTime
 }

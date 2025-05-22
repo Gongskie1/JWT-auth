@@ -11,10 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findOneUserService = void 0;
 // services/user/find-one-user.service.ts
-const fetchall_user_model_1 = require("../../models/user/fetchall-user.model");
+const findOne_user_model_1 = require("../../models/user/findOne-user.model");
 const httpError_1 = require("../../utils/httpError");
 const findOneUserService = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield (0, fetchall_user_model_1.findOneUserModel)(email);
+    const user = yield (0, findOne_user_model_1.findOneUserModel)(email);
     if (!user)
         throw new httpError_1.HttpError(404, "User not found");
     return user;

@@ -1,5 +1,5 @@
 // services/user/find-one-user.service.ts
-import { findOneUserModel } from "../../models/user/fetchall-user.model";
+import { findOneUserModel } from "../../models/user/findOne-user.model";
 import { Users } from "@prisma/client";
 import { HttpError } from "../../utils/httpError";
 

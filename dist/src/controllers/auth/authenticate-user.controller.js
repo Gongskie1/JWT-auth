@@ -12,17 +12,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleLogin = void 0;
 const auth_user_service_1 = require("../../services/auth/auth-user.service");
 const handleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const cookies = req.cookies;
     const user = req.body;
+    // Clear old cookie (even if auth fails)
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
     try {
-        const { accessToken, refreshToken } = yield (0, auth_user_service_1.authenticateUser)(user);
-        console.log(refreshToken);
-        res.cookie("jwt", refreshToken, {
+        const { accessToken, newRefreshToken, roles } = yield (0, auth_user_service_1.authenticateUser)(user, cookies, res);
+        res.cookie('jwt', newRefreshToken, {
             httpOnly: true,
-            sameSite: "lax",
+            sameSite: 'none',
             secure: true,
             maxAge: 1000 * 60 * 60 * 12,
         });
-        res.status(200).json({ accessToken });
+        res.status(200).json({ accessToken, roles });
     }
     catch (error) {
         next(error);

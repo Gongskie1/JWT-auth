@@ -13,11 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteRefreshToken = deleteRefreshToken;
+exports.deleteRefreshTokenByUserId = deleteRefreshTokenByUserId;
 const prisma_1 = __importDefault(require("../../config/prisma"));
 function deleteRefreshToken(refreshToken) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield prisma_1.default.refreshToken.delete({
-            where: { token: refreshToken }
+            where: { hashedToken: refreshToken }
+        });
+    });
+}
+function deleteRefreshTokenByUserId(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield prisma_1.default.refreshToken.deleteMany({
+            where: { userId }
         });
     });
 }

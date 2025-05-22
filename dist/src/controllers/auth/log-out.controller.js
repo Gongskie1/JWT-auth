@@ -29,7 +29,7 @@ const handleLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.status(204);
         return;
     }
-    yield (0, deleteRefreshToken_model_1.deleteRefreshToken)(foundUser.token);
+    yield (0, deleteRefreshToken_model_1.deleteRefreshToken)(foundUser.hashedToken);
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
     res.sendStatus(204);
 });

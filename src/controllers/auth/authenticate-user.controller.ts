@@ -3,23 +3,25 @@ import { NextFunction, Request, Response } from "express";
 import { Users } from "@prisma/client";
 import { authenticateUser } from "../../services/auth/auth-user.service";
 
-export const handleLogin = async (req: Request, res: Response,next:NextFunction) => {
-  const user: Pick<Users, "email" | "password"> = req.body;
+export const handleLogin = async (req: Request, res: Response, next: NextFunction) => {
+    const cookies = req.cookies;
+    const user: Pick<Users, "email" | "password"> = req.body;
 
-  try {
-    const { accessToken, refreshToken } = await authenticateUser(user);
+    // Clear old cookie (even if auth fails)
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
 
-    console.log(refreshToken);
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: true,
-      maxAge: 1000 * 60 * 60 * 12,
-    });
-    
+    try {
+        const { accessToken, newRefreshToken, roles } = await authenticateUser(user, cookies, res);
 
-    res.status(200).json({ accessToken });
-  } catch (error) {
-    next(error);
-  }
+        res.cookie('jwt', newRefreshToken, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            maxAge: 1000 * 60 * 60 * 12,
+        });
+
+        res.status(200).json({ accessToken, roles });
+    } catch (error) {
+        next(error);
+    }
 };

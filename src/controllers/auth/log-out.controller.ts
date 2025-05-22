@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpError } from "../../utils/httpError";
 import { findRefreshToken } from "../../models/refreshtoken/findRefreshToken.model";
 import { deleteRefreshToken } from "../../models/refreshtoken/deleteRefreshToken.model";
 
@@ -24,7 +23,8 @@ export const handleLogout = async (req:Request,res:Response,next:NextFunction) =
          return;
     }
 
-    await deleteRefreshToken(foundUser.token);
+    
+    await deleteRefreshToken(foundUser.hashedToken);
 
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
     res.sendStatus(204);
