@@ -3,7 +3,7 @@ import { Users } from "@prisma/client";
 import { createUserModel } from "../../models/user/create-user.model";
 import { findOneUserModel } from "../../models/user/findOne-user.model";
 import { hashPassword } from "../../utils/bcrypt";
-import { HttpError } from "../../utils/httpError"; // Import HttpError
+import { HttpError } from "../../utils/httpError"; 
 
 export const createUserService = async (user: Omit<Users, "id">): Promise<Omit<Users, "id">> => {
   const existingUser = await findOneUserModel(user.email);

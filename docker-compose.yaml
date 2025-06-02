@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    # For Prisma migration (optional)
+    command: >
+      sh -c "npx prisma migrate deploy && npm start"
+
+  db:
+    image: postgres:16.9-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # ports:  # Only uncomment if you need external access
+    #   - "5432:5432"
+
+volumes:
+  postgres_data:

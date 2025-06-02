@@ -13,7 +13,7 @@ exports.createUserService = void 0;
 const create_user_model_1 = require("../../models/user/create-user.model");
 const findOne_user_model_1 = require("../../models/user/findOne-user.model");
 const bcrypt_1 = require("../../utils/bcrypt");
-const httpError_1 = require("../../utils/httpError"); // Import HttpError
+const httpError_1 = require("../../utils/httpError");
 const createUserService = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield (0, findOne_user_model_1.findOneUserModel)(user.email);
     if (existingUser)
